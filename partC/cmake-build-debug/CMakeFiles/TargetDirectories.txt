@@ -1,0 +1,3 @@
+/home/yt/Desktop/mini_wireshark/partC/cmake-build-debug/CMakeFiles/partC_analysis.dir
+/home/yt/Desktop/mini_wireshark/partC/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/yt/Desktop/mini_wireshark/partC/cmake-build-debug/CMakeFiles/rebuild_cache.dir

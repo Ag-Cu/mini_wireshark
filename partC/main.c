@@ -49,7 +49,7 @@ int main(){
             /*
              * The following is the sample usage of filter_function and packet_process_function.
              */
-            if(filterByProtocol(buffer, UDP)){
+            if(filterByMacAddress(buffer, "00:50:56:ee:9b:90", 0)){
                 packet_process(buffer, data_size);
             }
         }else{

@@ -7,6 +7,7 @@
 #include "filter.h"
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
+#include <stdio.h>
 
 bool filterByIpAddress(unsigned char *buffer, char *ip_addr, int type){
     struct sockaddr_in source, dest;
@@ -43,19 +44,28 @@ bool filterByIpAddress(unsigned char *buffer, char *ip_addr, int type){
     }
 }
 
+void trans_MAC(unsigned char array[ETH_ALEN], char* s) {
+    sprintf(s,"%02x:%02x:%02x:%02x:%02x:%02x",array[0],
+            array[1], array[2], array[3], array[4],array[5]);
+}
+
 bool filterByMacAddress(unsigned char *buffer, char *mac_addr, int type){
     /*
      * Todo("exercise 3 : Complete the code of Step 2 correctly, and submit your source code.")
      */
+
     struct ethhdr *eth = (struct ethhdr *)(buffer);
+    char s[17];
     if (type == 0) {
-        if (!strcmp(mac_addr, (char*)eth->h_source)) {
+        trans_MAC(eth->h_source, (char*)s);
+        if (!strcmp(mac_addr, (char*)s)) {
             return true;
         } else {
             return false;
         }
     } else {
-        if (!strcmp(mac_addr, (char*)eth->h_dest)) {
+        trans_MAC(eth->h_dest, (char*)s);
+        if (!strcmp(mac_addr, (char*)s)) {
             return true;
         } else {
             return false;
