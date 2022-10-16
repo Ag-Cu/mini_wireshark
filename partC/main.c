@@ -7,6 +7,11 @@
 #include "packetProcess.h"
 #include "filter.h"
 
+#define ARP 1
+#define ICMP 2
+#define TCP 3
+#define UDP 4
+
 int main(){
     int PACKET_LEN = 16000;
     int PACKET_AMOUNT = 1000;
@@ -44,7 +49,7 @@ int main(){
             /*
              * The following is the sample usage of filter_function and packet_process_function.
              */
-            if(filterByProtocol(buffer, 1)){
+            if(filterByProtocol(buffer, UDP)){
                 packet_process(buffer, data_size);
             }
         }else{

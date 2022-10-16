@@ -44,11 +44,11 @@ void ip_header(unsigned char *buffer){
     printf("\t|-Version                 : %d\n", ip->version);
     printf("\t|-Internet Header Length  : %d DWORDS or %d Bytes\n", ip->ihl, 4 * ip->ihl);
     printf("\t|-Type of Service         : %d\n", ip->tos);
-    printf("\t|-Total length            : %d\n", ip->tot_len);
-    printf("\t|-Identification          : %d\n", ip->id);
+    printf("\t|-Total length            : %d\n", ntohs(ip->tot_len));
+    printf("\t|-Identification          : %d\n", ntohs(ip->id));
     printf("\t|-TTL                     : %d\n", ip->ttl);
     printf("\t|-Protocol                : %d\n", ip->protocol);
-    printf("\t|-Header Checksum         : %d\n", ip->check);
+    printf("\t|-Header Checksum         : %d\n", ntohs(ip->check));
     uint32_to_ipadder(ip->saddr, &num1, &num2, &num3, &num4);
     printf("\t|-Source IP               : %d.%d.%d.%d\n", num4, num3, num2, num1);
     uint32_to_ipadder(ip->daddr, &num1, &num2, &num3, &num4);
@@ -76,21 +76,21 @@ void tcp_header(unsigned char* buffer){
      */
     struct tcphdr *tcp = (struct tcphdr*) (buffer + sizeof(struct ethhdr) + sizeof (struct iphdr));
     printf("\nTCP Header\n");
-    printf("\t|-Source port             : %d\n", tcp->th_sport);
-    printf("\t|-Destination port        : %d\n", tcp->th_dport);
-    printf("\t|-Sequence number         : %u\n", tcp->th_seq);
-    printf("\t|-Acknowledgement number  : %u\n", tcp->th_ack);
+    printf("\t|-Source port             : %d\n", ntohs(tcp->th_sport));
+    printf("\t|-Destination port        : %d\n", ntohs(tcp->th_dport));
+    printf("\t|-Sequence number         : %d\n", ntohs(tcp->th_seq));
+    printf("\t|-Acknowledgement number  : %u\n", ntohs(tcp->th_ack));
     printf("\t|-Data offset             : %d\n", tcp->th_off);
     printf("\t|-Reserved                : %d\n", tcp->th_x2);
-    printf("\t|-Flags                   : 0x%x\n", tcp->th_flags);
+    printf("\t|-Flags                   : \n");
     printf("\t\t|-ACK                 : %d\n", tcp->ack);
     printf("\t\t|-PSH                 : %d\n", tcp->psh);
     printf("\t\t|-RST                 : %d\n", tcp->rst);
     printf("\t\t|-SYN                 : %d\n", tcp->syn);
     printf("\t\t|-FIN                 : %d\n", tcp->fin);
-    printf("\t|-Window                  : %d\n", tcp->window);
-    printf("\t|-Checksum                : %d\n", tcp->check);
-    printf("\t|-Urgent pointer          : %d\n", tcp->urg_ptr);
+    printf("\t|-Window                  : %d\n", ntohs(tcp->window));
+    printf("\t|-Checksum                : %d\n", ntohs(tcp->check));
+    printf("\t|-Urgent pointer          : %d\n", ntohs(tcp->urg_ptr));
 }
 
 // print format of udp-header
@@ -99,10 +99,11 @@ void udp_header(unsigned char* buffer){
      * Todo("exercise 2 : Complete the code of Step 1 correctly, and submit your source code.")
      */
     struct udphdr* udp = (struct udphdr*) (buffer + sizeof(struct ethhdr) + sizeof (struct iphdr));
-    printf("\t|-Source port             : %d\n", udp->uh_sport);
-    printf("\t|-Destination port        : %d\n", udp->uh_dport);
-    printf("\t|-Length                  : %d\n", udp->uh_ulen);
-    printf("\t|-Checksum                : %d\n", udp->uh_sum);
+    printf("\nUDP Header\n");
+    printf("\t|-Source port             : %d\n", ntohs(udp->uh_sport));
+    printf("\t|-Destination port        : %d\n", ntohs(udp->uh_dport));
+    printf("\t|-Length                  : %d\n", ntohs(udp->uh_ulen));
+    printf("\t|-Checksum                : %d\n", ntohs(udp->uh_sum));
 }
 
 // print format of icmp-header
@@ -111,10 +112,12 @@ void icmp_header(unsigned char *buffer){
      * Todo("exercise 2 : Complete the code of Step 1 correctly, and submit your source code.")
      */
     struct icmphdr* icmp = (struct icmphdr*) (buffer + sizeof(struct ethhdr) + sizeof (struct iphdr));
+    printf("\nICMP Header\n");
     printf("\t|-Type                    : %d\n", icmp->type);
     printf("\t|-Code                    : %d\n", icmp->code);
-    printf("\t|-Checksum                : %d\n", icmp->checksum);
-    printf("\t|-Rest of header          : %d\n", icmp->un);
+    printf("\t|-Checksum                : %d\n", ntohs(icmp->checksum));
+    printf("\t|-Sequence                : %d\n", ntohs(icmp->un.echo.sequence));
+    printf("\t|-id                      : %d\n", ntohs(icmp->un.echo.id));
 }
 
 // print format of payload
@@ -138,8 +141,8 @@ void ICMP_printer(unsigned char *buffer, int buffer_len){
     ip_header(buffer);
     icmp_header(buffer);
     // print packet payload
-    unsigned char *data = (buffer + ipheader_len  + sizeof(struct ethhdr) + sizeof(struct icmphdr));
-    int data_len = buffer_len - (ipheader_len  + sizeof(struct ethhdr) + sizeof(struct icmphdr));
+    unsigned char *data = (buffer + ipheader_len  + sizeof(struct ethhdr) + sizeof(struct icmphdr) + sizeof (struct iphdr));
+    int data_len = buffer_len - (ipheader_len  + sizeof(struct ethhdr) + sizeof(struct icmphdr) + sizeof (struct iphdr));
     payload(data, data_len);
     printf("--------------------------------------------------------------\n\n\n");
 }
@@ -168,8 +171,8 @@ void TCP_printer(unsigned char *buffer, int buffer_len){
     ip_header(buffer);
     tcp_header(buffer);
     // print packet payload
-    unsigned char *data = (buffer + ipheader_len  + sizeof(struct ethhdr) + sizeof(struct icmphdr));
-    int data_len = buffer_len - (ipheader_len  + sizeof(struct ethhdr) + sizeof(struct icmphdr));
+    unsigned char *data = (buffer + ipheader_len  + sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof (struct tcphdr));
+    int data_len = buffer_len - (ipheader_len  + sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof (struct tcphdr));
     payload(data, data_len);
     printf("--------------------------------------------------------------\n\n\n");
 }
@@ -185,8 +188,8 @@ void UDP_printer(unsigned char* buffer, int buffer_len){
     ip_header(buffer);
     udp_header(buffer);
     // print packet payload
-    unsigned char *data = (buffer + ipheader_len  + sizeof(struct ethhdr) + sizeof(struct icmphdr));
-    int data_len = buffer_len - (ipheader_len  + sizeof(struct ethhdr) + sizeof(struct icmphdr));
+    unsigned char *data = (buffer + ipheader_len  + sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr));
+    int data_len = buffer_len - (ipheader_len  + sizeof(struct ethhdr) + sizeof(struct iphdr)  + sizeof(struct udphdr));
     payload(data, data_len);
     printf("--------------------------------------------------------------\n\n\n");
 }

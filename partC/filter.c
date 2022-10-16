@@ -1,5 +1,4 @@
 #include <stdbool.h>
-#include <stdio.h>
 #include <netinet/if_ether.h>
 #include <netinet/in.h>
 #include <memory.h>
@@ -72,7 +71,7 @@ bool filterByProtocol(unsigned char* buffer, int type) {
     struct iphdr *ip = (struct iphdr *) (buffer + sizeof(struct ethhdr));
     switch (type) {
         case 1:
-            if ((int) ntohs(eth->h_proto) != 2054) {
+            if ((int) ntohs(eth->h_proto) != 2054) {        // arp
                 return false;
             } else {
                 return true;
@@ -82,7 +81,7 @@ bool filterByProtocol(unsigned char* buffer, int type) {
             if ((int) ntohs(eth->h_proto) != 2048) {
                 return false;
             }
-            if (ip->protocol != 1) {
+            if (ip->protocol != 1) {            // icmp
                 return false;
             } else {
                 return true;
@@ -92,7 +91,7 @@ bool filterByProtocol(unsigned char* buffer, int type) {
             if ((int) ntohs(eth->h_proto) != 2048) {
                 return false;
             }
-            if (ip->protocol != 6) {
+            if (ip->protocol != 6) {            // tcp
                 return false;
             } else {
                 return true;
@@ -102,7 +101,7 @@ bool filterByProtocol(unsigned char* buffer, int type) {
             if ((int) ntohs(eth->h_proto) != 2048) {
                 return false;
             }
-            if (ip->protocol != 17) {
+            if (ip->protocol != 17) {           // udp
                 return false;
             } else {
                 return true;
@@ -129,13 +128,13 @@ bool filterByPort(unsigned char *buffer, unsigned short port, int type){
     struct udphdr *udp = (struct udphdr*) (buffer + sizeof(struct ethhdr) + sizeof (struct iphdr));
     if (type == 0) {
         if (ip->protocol == 6) {
-            if (tcp->th_sport != port) {
+            if (ntohs(tcp->th_sport) != port) {
                 return false;
             } else {
                 return true;
             }
         } else {
-            if (udp->uh_sport != port) {
+            if (ntohs(udp->uh_sport) != port) {
                 return false;
             } else {
                 return true;
@@ -143,13 +142,13 @@ bool filterByPort(unsigned char *buffer, unsigned short port, int type){
         }
     } else {
         if (ip->protocol == 6) {
-            if (tcp->th_dport != port) {
+            if (ntohs(tcp->th_dport) != port) {
                 return false;
             } else {
                 return true;
             }
         } else {
-            if (udp->uh_dport != port) {
+            if (ntohs(udp->uh_dport) != port) {
                 return false;
             } else {
                 return true;
