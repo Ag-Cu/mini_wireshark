@@ -2,7 +2,8 @@
 // Created by yt on 10/15/22.
 //
 
-// an syn packet to "35.224.170.84"
+/* forge an syn packet to "182.61.200.6"  www.baidu.com  */
+
 #include<stdio.h>
 #include<string.h>
 #include<sys/ioctl.h>
@@ -14,11 +15,13 @@
 #include<arpa/inet.h>
 #include <netinet/tcp.h>
 
+#define SEQ 9527;       // begin seq, can be a  uint32 random num
+
 extern struct ifreq ifreq_ip;
 extern int sock_raw;
 extern unsigned char *sendbuff;
 extern int total_len;
-uint32_t seq_num = 2636;        // begin seq, can be random num
+uint32_t seq_num = SEQ;
 uint32_t ack_num = 0;
 
 unsigned short checksum(unsigned char* buf, int size) {
@@ -54,7 +57,7 @@ void get_tcp(){
 
     struct tcphdr *th = (struct tcphdr *)(sendbuff + sizeof(struct iphdr) + sizeof(struct ethhdr));
 
-    th->th_sport = htons(42769);
+    th->th_sport = htons(46150);
     th->th_dport = htons(80);       // 80端口
     th->seq = htons(seq_num);
     th->ack_seq = htons(ack_num);
@@ -89,7 +92,7 @@ void get_ip_tcp(){
     iph->ttl	= 64;
     iph->protocol	= 6;
     iph->saddr	= inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifreq_ip.ifr_addr))->sin_addr)));
-    iph->daddr	= inet_addr("35.224.170.84"); // put destination IP address
+    iph->daddr	= inet_addr("182.61.200.6"); // put destination IP address
     printf("destIP:%.2X\n",iph->daddr);
     total_len += sizeof(struct iphdr);
     get_tcp();

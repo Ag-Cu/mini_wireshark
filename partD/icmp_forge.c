@@ -2,7 +2,7 @@
 // Created by yt on 10/16/22.
 //
 
-// an ping packet to "192.168.163.1"
+// an ping packet to "192.168.163.1"  (local host)
 #include<stdio.h>
 #include<string.h>
 #include<sys/ioctl.h>
