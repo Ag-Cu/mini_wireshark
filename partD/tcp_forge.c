@@ -14,8 +14,11 @@
 #include<netinet/udp.h>
 #include<arpa/inet.h>
 #include <netinet/tcp.h>
+#include <malloc.h>
 
-#define SEQ 9527;       // begin seq, can be a  uint32 random num
+
+#define SEQ 9527;       // begin seq, can be a uint32 random num
+#define TCP_DES_IP "34.107.221.82"
 
 extern struct ifreq ifreq_ip;
 extern int sock_raw;
@@ -23,6 +26,16 @@ extern unsigned char *sendbuff;
 extern int total_len;
 uint32_t seq_num = SEQ;
 uint32_t ack_num = 0;
+
+unsigned char *checksum_buff;
+
+struct dummy_tcphdr {
+    uint32_t s_ip_addr;
+    uint32_t d_ip_addr;
+    uint8_t zeros;
+    uint8_t protocol;
+    uint16_t tcp_len;
+};
 
 unsigned short checksum(unsigned char* buf, int size) {
     unsigned int checkSum = 0;
@@ -45,19 +58,16 @@ unsigned short checksum(unsigned char* buf, int size) {
     return ~checkSum;
 }
 
-void get_data(){
-    sendbuff[total_len++]	=	0x68;
-    sendbuff[total_len++]	=	0x65;
-    sendbuff[total_len++]	=	0x6C;
-    sendbuff[total_len++]	=	0x6C;
-    sendbuff[total_len++]	=	0x6F;
-}
 
 void get_tcp(){
 
     struct tcphdr *th = (struct tcphdr *)(sendbuff + sizeof(struct iphdr) + sizeof(struct ethhdr));
+    struct iphdr *ip = (struct iphdr *)(sendbuff + sizeof(struct ethhdr));
+    checksum_buff = (unsigned char*)malloc(sizeof (struct dummy_tcphdr) + sizeof (struct tcphdr));              // no payload
+    memset(checksum_buff,0,sizeof (struct dummy_tcphdr) + sizeof (struct tcphdr));
+    struct dummy_tcphdr *d_hdr = (struct dummy_tcphdr*)(checksum_buff);
 
-    th->th_sport = htons(46150);
+    th->th_sport = htons(43350);
     th->th_dport = htons(80);       // 80端口
     th->seq = htons(seq_num);
     th->ack_seq = htons(ack_num);
@@ -71,8 +81,16 @@ void get_tcp(){
     th->window = htons(64240);
     th->urg_ptr = htons(0);
     total_len+= sizeof(struct tcphdr);
+
+    d_hdr->s_ip_addr = ip->saddr;
+    d_hdr->d_ip_addr = ip->daddr;
+    d_hdr->zeros = 0;
+    d_hdr->protocol = 6;
+    d_hdr->tcp_len =  htons(sizeof (struct tcphdr));                    // no payload
+
+    memcpy(checksum_buff + sizeof (struct dummy_tcphdr), th, sizeof (struct tcphdr));
     th->check = htons(
-            checksum((unsigned char*)(sendbuff + sizeof(struct ethhdr) + sizeof (struct iphdr)),sizeof(struct tcphdr)));
+            checksum(checksum_buff,sizeof(struct tcphdr) + sizeof (struct dummy_tcphdr)));
 }
 
 void get_ip_tcp(){
@@ -92,7 +110,7 @@ void get_ip_tcp(){
     iph->ttl	= 64;
     iph->protocol	= 6;
     iph->saddr	= inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifreq_ip.ifr_addr))->sin_addr)));
-    iph->daddr	= inet_addr("182.61.200.6"); // put destination IP address
+    iph->daddr	= inet_addr(TCP_DES_IP); // put destination IP address
     printf("destIP:%.2X\n",iph->daddr);
     total_len += sizeof(struct iphdr);
     get_tcp();

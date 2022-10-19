@@ -14,6 +14,8 @@
 
 #pragma pack(1)      // 强制结构体紧凑分配
 
+#define TARGET_IP "192.168.163.1"          // target IP address
+
 extern struct ifreq ifreq_arp, ifreq_ip;
 extern int sock_raw;
 extern unsigned char *sendbuff;
@@ -51,7 +53,7 @@ void get_arp(){
     arpb->S_H_addr[4] = eth->h_source[4];
     arpb->S_H_addr[5] = eth->h_source[5];
 
-    arpb->S_P_addr = inet_ntoa((((struct sockaddr_in*)&(ifreq_arp.ifr_addr))->sin_addr));
+    arpb->S_P_addr = inet_addr(inet_ntoa((((struct sockaddr_in*)&(ifreq_arp.ifr_addr))->sin_addr)));
 
     arpb->T_H_addr[0] = 0x00;
     arpb->T_H_addr[1] = 0x00;
@@ -60,5 +62,5 @@ void get_arp(){
     arpb->T_H_addr[4] = 0x00;
     arpb->T_H_addr[5] = 0x00;
 
-    arpb->T_P_addr = inet_addr("192.168.163.1"); // put target IP address
+    arpb->T_P_addr = inet_addr(TARGET_IP); // put target IP address
 }

@@ -2,7 +2,7 @@
 // Created by yt on 10/16/22.
 //
 
-// an ping packet to "192.168.163.1"  (local host)
+// an ping packet to "192.168.163.1"
 #include<stdio.h>
 #include<string.h>
 #include<sys/ioctl.h>
@@ -12,6 +12,8 @@
 #include<netinet/if_ether.h>
 #include<arpa/inet.h>
 #include <netinet/ip_icmp.h>
+
+#define ICMP_DES_IP "192.168.163.1"      // 目的ip地址
 
 extern struct ifreq ifreq_ip;
 extern int sock_raw;
@@ -48,7 +50,7 @@ void get_ip_icmp() {
     iph->ttl	= 64;
     iph->protocol	= 1;
     iph->saddr	= inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifreq_ip.ifr_addr))->sin_addr)));
-    iph->daddr	= inet_addr("192.168.163.1"); // put destination IP address
+    iph->daddr	= inet_addr(ICMP_DES_IP); // put destination IP address
     printf("destIP:%.2X\n",iph->daddr);
     total_len += sizeof(struct iphdr);
     get_icmp();

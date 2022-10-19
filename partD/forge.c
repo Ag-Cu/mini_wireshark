@@ -15,7 +15,7 @@
 #include "arp_forge.h"
 #include "icmp_forge.h"
 
-// 主机对应网卡的MAC地址
+// 目的网卡的MAC地址
 #define DESTMAC0	0x00
 #define DESTMAC1	0x50
 #define DESTMAC2	0x56
@@ -23,7 +23,7 @@
 #define DESTMAC4	0x00
 #define DESTMAC5	0x08
 
-#define SEND_NUM 1         // 发送伪造数据包的个数
+#define SEND_NUM 10       // 发送伪造数据包的个数
 
 struct ifreq ifreq_i, ifreq_c, ifreq_ip, ifreq_arp;
 int sock_raw;
@@ -69,14 +69,14 @@ int main(){
     sadr_ll.sll_addr[5]  = DESTMAC5;
 
     printf("sending...\n");
-    int send_num = 0;
+    int send_num = 1;
     while(1){
         send_len = sendto(sock_raw,sendbuff,64,0,(const struct sockaddr*)&sadr_ll,sizeof(struct sockaddr_ll));
         if(send_len<0){
             printf("error in sending....sendlen=%d....errno=%d\n",send_len,errno);
             return -1;
         }
-        if (send_num> SEND_NUM) {
+        if (send_num >= SEND_NUM) {
             return 0;
         }
         send_num++;
