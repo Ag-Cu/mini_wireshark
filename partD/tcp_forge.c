@@ -91,6 +91,7 @@ void get_tcp(){
     memcpy(checksum_buff + sizeof (struct dummy_tcphdr), th, sizeof (struct tcphdr));
     th->check = htons(
             checksum(checksum_buff,sizeof(struct tcphdr) + sizeof (struct dummy_tcphdr)));
+    free(checksum_buff);
 }
 
 void get_ip_tcp(){
