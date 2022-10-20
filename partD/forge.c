@@ -23,7 +23,7 @@
 #define DESTMAC4	0x00
 #define DESTMAC5	0x08
 
-#define SEND_NUM 10       // 发送伪造数据包的个数
+#define SEND_NUM 1       // 发送伪造数据包的个数
 
 struct ifreq ifreq_i, ifreq_c, ifreq_ip, ifreq_arp;
 int sock_raw;

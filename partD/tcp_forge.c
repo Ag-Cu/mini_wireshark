@@ -2,7 +2,7 @@
 // Created by yt on 10/15/22.
 //
 
-/* forge an syn packet to "182.61.200.6"  www.baidu.com  */
+/* forge an syn packet to TCP_DES_IP  */
 
 #include<stdio.h>
 #include<string.h>
@@ -18,7 +18,7 @@
 
 
 #define SEQ 9527;       // begin seq, can be a uint32 random num
-#define TCP_DES_IP "34.107.221.82"
+#define TCP_DES_IP "192.168.163.1"
 
 extern struct ifreq ifreq_ip;
 extern int sock_raw;
@@ -67,7 +67,7 @@ void get_tcp(){
     memset(checksum_buff,0,sizeof (struct dummy_tcphdr) + sizeof (struct tcphdr));
     struct dummy_tcphdr *d_hdr = (struct dummy_tcphdr*)(checksum_buff);
 
-    th->th_sport = htons(43350);
+    th->th_sport = htons(23451);
     th->th_dport = htons(80);       // 80端口
     th->seq = htons(seq_num);
     th->ack_seq = htons(ack_num);
